@@ -6,7 +6,7 @@ importFrom("CompositionalSR", areg, alfa.betest)
 importFrom("Rfast", eachcol.apply, eachrow, standardise,
            colmeans, rowsums, Table)
 importFrom("rangen", Sample.int)
-importFrom("stats", pchisq)
+importFrom("stats", pchisq, pf)
 import("parallel")
 
 exportPattern("^[[:alpha:]]+")
