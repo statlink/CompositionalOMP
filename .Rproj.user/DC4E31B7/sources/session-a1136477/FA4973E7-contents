@@ -1,5 +1,5 @@
 cv.alfagomp <- function( y, x, a = seq(0.1, 1, by = 0.1), sig = 0.05, R = 499,
-                         nfolds = 10, folds = NULL, nc = 1, seed = NULL ) {
+                         nfolds = 10, folds = NULL, ncores = 1, seed = NULL ) {
   if ( min(y) == 0 )  a <- a[a>0]
   lena <- length(a)
   n <- dim(y)[1]
@@ -7,9 +7,9 @@ cv.alfagomp <- function( y, x, a = seq(0.1, 1, by = 0.1), sig = 0.05, R = 499,
   if ( is.null(folds) )  folds <- Compositional::makefolds(ina, nfolds = nfolds,
                                                            stratified = FALSE, seed = seed)
   nfolds <- length(folds)
-
   apa <- proc.time()
   kula <- matrix(nrow = nfolds, ncol = lena)
+
   for ( i in 1:nfolds ) {
     xtest <- x[ folds[[ i ]], ]
     ytest <- y[ folds[[ i ]], ]
@@ -17,27 +17,27 @@ cv.alfagomp <- function( y, x, a = seq(0.1, 1, by = 0.1), sig = 0.05, R = 499,
     ytrain <- y[-folds[[ i ]], ]
     path <- CompositionalOMP::areg.gomp.path(ytrain, xtrain, a = a, sig = sig, R = R,
                                              model = TRUE, ncores = ncores)$path
+    ntest <- dim(ytest)[1]
     for ( j in 1:lena ) {
-
-
-      kl <- ytest * log(ytest / yest)
+      mod <- path[[ j ]]
+      res <- mod$res[-1, 1]
+      if ( length(res) == 0 ) {
+        est <- Compositional::frechet(ytrain, a[j])
+        est <- matrix( rep(est, ntest), nrow = ntrain, byrow = TRUE)
+      } else {
+        est <- cbind( cbind(1, xtest[, res]) %*% mod$mod$be )
+        est <- est / Rfast::rowsums(est)
+      }
+      kl <- ytest * log(ytest / est)
       kl[ is.infinite(kl) ] <- NA
-      kula[i, j] <- sum(kl, na.rm = TRUE) / dim(yest)[1]
+      kula[i, j] <- sum(kl, na.rm = TRUE) / dim(est)[1]
     }
-
-    kl <- Rfast::colmeans(kula)
-    opt <- c( min(kl), a[ which.min(kl) ] )
-    names(opt) <- c( "KLD", "alpha")
-    apa <- proc.time() - apa
-
-
-    kula <- kula[, 1:la]
-    kl <- Rfast::colmeans(kula)
-    opt <- c( min(kl), a[ which.min(kl) ] )
-    names(opt) <- c( "KLD", "alpha")
-    apa <- proc.time() - apa
-
   }
+
+  kl <- Rfast::colmeans(kula)
+  opt <- c( min(kl), a[ which.min(kl) ] )
+  names(opt) <- c( "KLD", "alpha")
+  apa <- proc.time() - apa
 
   list(runtime = apa, perf = kl, opt = opt)
 }
