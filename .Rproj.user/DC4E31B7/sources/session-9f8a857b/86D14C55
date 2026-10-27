@@ -1,26 +1,26 @@
 {
-    "id": "18CE4E9E",
-    "path": "~/GitHub/CompositionalOMP/man/areg.gomp.path.Rd",
-    "project_path": "man/areg.gomp.path.Rd",
+    "id": "86D14C55",
+    "path": "~/GitHub/CompositionalOMP/man/dirigomp.bic.update.Rd",
+    "project_path": "man/dirigomp.bic.update.Rd",
     "type": "r_doc",
-    "hash": "3803022277",
+    "hash": "0",
     "contents": "",
     "dirty": false,
-    "created": 1793131717454.0,
+    "created": 1793132899876.0,
     "source_on_save": false,
     "relative_order": 1,
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "93,38",
-        "scrollLine": "72"
+        "cursorPosition": "67,0",
+        "scrollLine": "48"
     },
     "folds": "",
-    "lastKnownWriteTime": 1793131776,
+    "lastKnownWriteTime": 1793133080,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1793131776658,
+    "last_content_update": 1793133080166,
     "read_only": false,
     "read_only_alternatives": []
 }

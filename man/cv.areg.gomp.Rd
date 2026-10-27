@@ -90,7 +90,7 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}.
 %}
 
 \seealso{
-\code{ \link{areg.gomp}, \link{areg.gomp.path} }
+\code{ \link{areg.gomp}, \link{areg.gomp.path}, \link{cv.diri.gomp} }
 }
 
 \examples{
