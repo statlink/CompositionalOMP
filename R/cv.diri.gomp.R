@@ -1,6 +1,6 @@
-cv.diri.gomp <- function( y, x, sig = 0.05, nfolds = 10, folds = NULL, seed = NULL ) {
+cv.diri.gomp <- function(y, x, sig = 0.05, nfolds = 10, folds = NULL, seed = NULL) {
 
-  n <- dim(y)[1]
+  n <- dim(y)[1]   ;   p <- dim(x)[2]
   ina <- 1:n
   if ( is.null(folds) )  folds <- Compositional::makefolds(ina, nfolds = nfolds,
                                                            stratified = FALSE, seed = seed)
@@ -27,6 +27,15 @@ cv.diri.gomp <- function( y, x, sig = 0.05, nfolds = 10, folds = NULL, seed = NU
     kl <- ytest * log(ytest / est)
     kl[ is.infinite(kl) ] <- NA
     kula[i, 1] <- sum(kl, na.rm = TRUE) / dim(est)[1]
+    ### eBIC now
+    res <- dirigomp.ebic.update(mod$res, dim(ytrain)[1], p)[-1, 1]
+    if ( length(res) == 0 ) {
+      est <- Rfast::rowmeans(ytrain)
+      est <- matrix( rep(est, ntest), nrow = ntest, byrow = TRUE)
+    } else  est <- Compositional::diri.reg.irls(ytrain, xtrain[, res], xnew = xtest[, res])$est
+    kl <- ytest * log(ytest / est)
+    kl[ is.infinite(kl) ] <- NA
+    kula[i, 2] <- sum(kl, na.rm = TRUE) / dim(est)[1]
   }
 
   kl <- Rfast::colmeans(kula)
