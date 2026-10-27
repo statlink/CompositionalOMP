@@ -1,0 +1,28 @@
+areg.gomp.path <- function(y, x, a = seq(-1, 1, by = 0.1), xstand = TRUE, sig = 0.05, R = 499, 
+                           model = FALSE, ncores = 1) {
+
+  runtime <- proc.time()
+
+  if ( xstand )  x <- Rfast::standardise(x)
+  if ( min(y) == 0 )  a <- a[a > 0]
+  lena <- length(a)
+ 
+  fun <- function(alfa, y, x, sig, R, model) {
+    CompositionalOMP::areg.gomp(y, x, a = alfa, xstand = FALSE, sig = sig, R = R, model = model)
+  }
+
+  if ( ncores <= 1 ) {
+    path <- lapply(a, fun, y = y, x = x, sig = sig, R = R, model = model)
+  } else {
+    ncores <- min(ncores, lena)
+    environment(fun) <- globalenv()   ## do not ship the local frame (y, x, ...) with fun
+    cl <- parallel::makeCluster(ncores)
+    on.exit( parallel::stopCluster(cl), add = TRUE )
+    path <- parallel::parLapply(cl, a, fun, y = y, x = x, sig = sig, R = R, model = model)
+  }
+
+  names(path) <- paste("alfa=", a, sep = "")
+  runtime <- proc.time() - runtime
+
+  list(runtime = runtime, path = path)
+}

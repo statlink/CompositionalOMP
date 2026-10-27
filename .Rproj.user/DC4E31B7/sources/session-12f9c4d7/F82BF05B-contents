@@ -1,0 +1,33 @@
+boot.gomp <- function(y, x, type = "diri", a = 1, xstand = TRUE, sig = 0.05, ebic = FALSE,
+                      B = 500, R = 499, ncores = 1) {
+
+  runtime <- proc.time()
+  n <- dim(y)[1]
+
+  bootfun <- function(i, y, x, n, type, a, sig, R, ebic) {
+    ina <- rangen::Sample.int(n, n, replace = TRUE)
+    yb <- y[ina, ]   ;   xb <- x[ina, ]
+    if ( type == "diri" ) {
+      CompositionalOMP::diri.gomp(yb, xb, xstand = TRUE, sig = sig, ebic = ebic)$res[-1, 1]
+    } else {
+      CompositionalOMP::areg.gomp(yb, xb, a = a, xstand = TRUE, sig = sig, R = R)$res[-1, 1]
+    }
+  }
+
+  if ( ncores <= 1 ) {
+    sel <- lapply(1:B, bootfun, y = y, x = x, n = n, type = type, a = a, sig = sig, R = R, ebic = ebic)
+  } else {
+    ncores <- min(ncores, B)
+    environment(bootfun) <- globalenv()
+    cl <- parallel::makeCluster(ncores)
+    on.exit( parallel::stopCluster(cl), add = TRUE )
+    sel <- parallel::parLapply(cl, 1:B, bootfun, y = y, x = x, n = n, type = type, a = a,
+                               sig = sig, R = R, ebic = ebic)
+  }
+
+  sel <- unlist(sel)
+  res <- cbind(unique(sel), Rfast::Table(sel)/B )
+  colnames(res) <- c("Variable", "Selection proportion")
+  runtime <- proc.time() - runtime
+  list(runtime = runtime, res = res)
+}

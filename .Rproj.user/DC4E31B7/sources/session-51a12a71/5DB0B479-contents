@@ -1,0 +1,104 @@
+areg.gomp <- function(y, x, a = 1, xstand = TRUE, alpha = 0.05, R = 499, ebic = FALSE, model = FALSE) {
+
+  runtime <- proc.time()
+
+  if ( xstand )  x <- Rfast::standardise(x)
+  d <- dim(y)[2] - 1
+  dm <- dim(x)   ;   n <- dm[1]
+  p <- dm[2]     ;   ind <- 1:p
+
+  ya <- Compositional::alfa(y, a)$aff
+  sse <- Rfast::eachrow( ya, Rfast::colmeans(ya), oper = "-" )
+  sse <- sum(sse^2)
+  ela <- Rfast::eachcol.apply(x, ya[, 1])^2
+  for ( j in 2:d )  ela <- ela + Rfast::eachcol.apply(x, ya[, j])^2
+  sel <- which.max(ela)
+  sela <- NULL
+  rho <- c(0, Compositional::alfa.betest(y, x, a, index = "all", R = R, ya = ya))
+
+  i <- 2
+  while ( rho[i] < alpha  &  length(sela) < p - 1  &  i < n ) {
+    i <- i + 1
+    sela <- c(sela, sel)
+    ind[sela] <- 0
+    mod <- CompositionalSR::areg(y, x[, sela, drop = FALSE], xnew = x[, sela, drop = FALSE], yb = ya)
+    sse[i - 1] <- mod$dev
+    res <- ya - Compositional::alfa(mod$est, a)
+  	r <- numeric(p)
+    ii <- ind[ind > 0]
+    r[ind] <- Rfast::eachcol.apply(x, res[, 1], indices = ii)^2
+    for ( j in 2:d )  r[ind] <- r[ind] + Rfast::eachcol.apply(x, res[, j], indices = ii)^2
+    sel <- which.max(r)
+    X <- x[, c(sel, sela)]
+    rho[i] <- Compositional::alfa.betest(y, x, a, index = 1, R = R, ya = ya)
+  }
+
+  len <- length(sela)
+  res <- cbind( c(0, sela), lik[1:(len + 1)], c(NA, rho[seq_len(len) + 1]) )
+  colnames(res) <- c("Selected", "SSE", "p-value")
+
+  if ( ebic  &  dim(res)[1] > 1 ) {
+    sel <- 1:c(len + 1)
+    if ( n > p )  gam <- 0 else gam <- 0.5
+    for ( i in 1:len ) {
+      ebic <- 2 * log(n) + 2 * gam * (p - i) / (i + 1)
+      if ( 2 * (res[i + 1, 2] - res[i, 2] ) < ebic ) {
+        sel[i + 1] <- 0
+      }
+    }
+    res <- res[sel, , drop = FALSE]
+    if ( dim(res)[1] > 1 )  sela <- res[-1, 1]  else  sela <- 0
+  }
+
+  mod <- NULL
+  if ( model &  dim(res)[1] > 1 )  mod <- CompositionalSR::areg(y, x[, sela, drop = FALSE], a, yb = ya)
+
+  runtime <- proc.time() - runtime
+
+  list(runtime = runtime, res = res, mod = mod)
+}
+
+
+
+
+# vm.gomp <- function(y, x, rads = TRUE, xstand = TRUE, alpha = 0.05, R = 499) {
+#
+#   runtime <- proc.time()
+#   if ( !is.matrix(y) ) {
+#     if ( !rads )   y <- y * pi/180
+#     y <- cbind( cos(y), sin(y) )
+#   }
+#   if ( xstand )  x <- Rfast::standardise(x)
+#   dm <- dim(x)   ;   n <- dm[1]   ;   p <- dm[2]
+#
+#   ind <- 1:p
+#   lik <- Rfast::vmf.mle(y, tol = 1e-6)$loglik
+#   ela <- Rfast::eachcol.apply(x, y[, 1])^2 + Rfast::eachcol.apply(x, y[, 2])^2
+#   sel <- which.max(ela)
+#   sela <- NULL
+#   rho <- c( 0, .perm.reg0(y, x[, sel], R = R) )
+#
+#   i <- 2
+#   while ( rho[i] < alpha  &  length(sela) < p - 1  &  i < n ) {
+#     i <- i + 1
+#     sela <- c(sela, sel)
+#     ind[sela] <- 0
+#     mod <- vm.reg(y, x[, sela], xnew = x[, sela])
+#     lik[i - 1] <- mod$loglik
+#     res <- y - mod$est * mod$A1
+#     r <- numeric(p)
+#     ii <- ind[ind > 0]
+#     r[ind] <- Rfast::eachcol.apply(x, res[, 1], indices = ii)^2 +
+#               Rfast::eachcol.apply(x, res[, 2], indices = ii)^2
+#     sel <- which.max(r)
+#     rho[i] <- .perm.reg1(y, x = x[, sel], xsel = x[, sela], R = R)
+#   }
+#
+#   mod <- vm.reg(y, x[, sela])
+#   runtime <- proc.time() - runtime
+#   len <- length(sela)
+#   res <- cbind( c(0, sela), lik[1:(len + 1)], c(NA, rho[seq_len(len) + 1]) )
+#   colnames(res) <- c("Selected", "log-likelihood", "p-value")
+#   list(runtime = runtime, res = res, mod = mod)
+# }
+

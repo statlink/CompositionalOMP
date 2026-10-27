@@ -1,0 +1,14 @@
+#useDynLib(fsn, .registration = TRUE)
+
+importFrom("Compositional", alfa, diri.reg.irls, diri.nr,
+           makefolds)
+importFrom("CompositionalSR", areg, alfa.betest)
+importFrom("Rfast", eachcol.apply, eachrow, standardise,
+           colmeans, rowsums, Table)
+importFrom("rangen", Sample.int)
+importFrom("stats", pchisq)
+import("parallel")
+
+exportPattern("^[[:alpha:]]+")
+exportPattern("^[^\\.]")
+

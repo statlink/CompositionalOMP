@@ -1,0 +1,34 @@
+\name{CompositionalOMP-package}
+\alias{CompositionalOMP-package}
+\docType{package}
+\title{
+The gamma-Orthogonal Matching Pursuit Variable Selection for Compositional Regression
+}
+\description{
+The gamma-Orthogonal Matching Pursuit (gamma-OMP) is a recently suggested modification of the OMP feature selection algorithm for a wide range of response variables. The package offers many alternative regression models, such linear, robust, survival, multivariate etc., including k-fold cross-validation. References: Tsagris M., Papadovasilakis Z., Lakiotaki K. and Tsamardinos I. (2018). "Efficient feature selection on gene expression data: Which algorithm to use?" BioRxiv. <doi:10.1101/431734>. Tsagris M., Papadovasilakis Z., Lakiotaki K. and Tsamardinos I. (2022). "The gamma-OMP algorithm for feature selection with application to gene expression data". IEEE/ACM Transactions on Computational Biology and Bioinformatics 19(2): 1214--1224.
+}
+\details{
+\tabular{lll}{
+Package: \tab CompositionalOMP\cr
+Type: \tab Package\cr
+Version: \tab 1.0\cr
+Date: \tab 2026-10-27\cr
+License: \tab GPL-2\cr
+}
+}
+\author{
+Michail Tsagris \email{mtsagris@uoc.gr}.
+}
+
+\section{Maintainers}{
+Michail Tsagris \email{mtsagris@uoc.gr}.
+}
+
+\references{
+Tsagris M., Papadovasilakis Z., Lakiotaki K. and Tsamardinos I. (2018). Efficient feature selection on gene expression data: Which algorithm to use? BioRxiv.
+
+Tsagris M., Papadovasilakis Z., Lakiotaki K. and Tsamardinos I. (2022). The \eqn{\gamma}-OMP algorithm for feature selection with application to gene expression data". IEEE/ACM Transactions on Computational Biology and Bioinformatics 19(2): 1214--1224.
+}
+
+
+
