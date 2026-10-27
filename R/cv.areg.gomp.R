@@ -23,9 +23,9 @@ cv.areg.gomp <- function( y, x, a = seq(0.1, 1, by = 0.1), sig = 0.05, R = 499,
       res <- mod$res[-1, 1]
       if ( length(res) == 0 ) {
         est <- Compositional::frechet(ytrain, a[j])
-        est <- matrix( rep(est, ntest), nrow = ntrain, byrow = TRUE)
+        est <- matrix( rep(est, ntest), nrow = ntest, byrow = TRUE)
       } else {
-        est <- cbind( cbind(1, xtest[, res]) %*% mod$mod$be )
+        est <- cbind(1, exp( cbind(1, xtest[, res]) %*% mod$mod$be ) )
         est <- est / Rfast::rowsums(est)
       }
       kl <- ytest * log(ytest / est)
