@@ -1,5 +1,5 @@
-cv.alfagomp <- function( y, x, a = seq(0.1, 1, by = 0.1), sig = 0.05, R = 499,
-                         nfolds = 10, folds = NULL, ncores = 1, seed = NULL ) {
+cv.areg.gomp <- function( y, x, a = seq(0.1, 1, by = 0.1), sig = 0.05, R = 499,
+                         nfolds = 10, folds = NULL, seed = NULL, ncores = 1 ) {
   if ( min(y) == 0 )  a <- a[a>0]
   lena <- length(a)
   n <- dim(y)[1]

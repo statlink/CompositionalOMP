@@ -1,4 +1,4 @@
-diri.gomp <- function(y, x, xstand = TRUE, alpha = 0.05, ebic = FALSE, model = FALSE) {
+diri.gomp <- function(y, x, xstand = TRUE, sig = 0.05, ebic = FALSE, model = FALSE) {
 
   runtime <- proc.time()
 
@@ -11,24 +11,22 @@ diri.gomp <- function(y, x, xstand = TRUE, alpha = 0.05, ebic = FALSE, model = F
   mod <- Compositional::diri.nr(y)
   lik <- mod$loglik
   ela <- Rfast::eachcol.apply(x, y[, 2])^2
-  for ( j in 3:d )  ela <- ela + Rfast::eachcol.apply(x, ya[, j])^2
+  for ( j in 3:d )  ela <- ela + Rfast::eachcol.apply(x, y[, j])^2
   sel <- which.max(ela)
   sela <- NULL
-  mod <- Compositional::diri.reg.irls(y, x[, sel, drop = FALSE])
+  mod <- Compositional::diri.reg.irls(y, x[, sel], xnew = x[, sel])
   lik[2] <- mod$loglik
   stat <- 2 * ( lik[2] - lik[1] )
   pvalue <- pchisq(stat, d, lower.tail = FALSE)
   rho <- c(0, pvalue)
 
   i <- 2
-  while ( rho[i] < alpha  &  length(sela) < p - 1  &  i < n ) {
+  while ( rho[i] < sig  &  length(sela) < p - 1  &  i < n ) {
     i <- i + 1
     sela <- c(sela, sel)
     ind[sela] <- 0
 
-    eta <- cbind(1, x[, sela]) %*% mod$beta
-    exp_eta <- exp(eta)
-    mu <- cbind(1, exp_eta) / (1 + Rfast::rowsums(exp_eta))
+    mu <- mod$est
     psi1_phi <- trigamma(mod$phi)
     alpha <- mod$phi * mu
     h <- ly - digamma(alpha)
@@ -40,15 +38,15 @@ diri.gomp <- function(y, x, xstand = TRUE, alpha = 0.05, ebic = FALSE, model = F
     r[ind] <- Rfast::eachcol.apply(x, res[, 1], indices = ii)^2
     for ( j in 2:d )  r[ind] <- r[ind] + Rfast::eachcol.apply(x, res[, j], indices = ii)^2
     sel <- which.max(r)
-    mod <- Compositional::diri.reg.irls(y, x[, c(sela, sel)])
+    mod <- Compositional::diri.reg.irls(y, x[, c(sela, sel)], xnew = x[, c(sela, sel)])
     lik[i] <- mod$loglik
-    stat <- 2 * ( lik[2] - lik[1] )
+    stat <- 2 * ( lik[i] - lik[i - 1] )
     rho[i] <- pchisq(stat, d, lower.tail = FALSE)
   }
 
   len <- length(sela)
   res <- cbind( c(0, sela), lik[1:(len + 1)], c(NA, rho[seq_len(len) + 1]) )
-  colnames(res) <- c("Selected", "SSE", "p-value")
+  colnames(res) <- c("Selected", "log-lik", "p-value")
 
   if ( ebic  &  dim(res)[1] > 1 ) {
     sel <- 1:c(len + 1)
@@ -64,7 +62,7 @@ diri.gomp <- function(y, x, xstand = TRUE, alpha = 0.05, ebic = FALSE, model = F
   }
 
   mod <- NULL
-  if ( model &  dim(res)[1] > 1 )  mod <- Compositional::diri.reg.irls(y, x[, sela, drop = FALSE])
+  if ( model  &  dim(res)[1] > 1 )  mod <- Compositional::diri.reg.irls(y, x[, sela, drop = FALSE])
 
   runtime <- proc.time() - runtime
 
