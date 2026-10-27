@@ -90,6 +90,7 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}.
 \examples{
 y <- as.matrix(iris[, 1:4])
 y <- y / rowSums(y)
-x <- matrix(rnorm(150 * 10), ncol = 10)
+x <- matrix(rnorm(150 * 50), ncol = 50)
+mod <- areg.gomp.path(y, x, a = seq(-1, 1, by = 0.5) )
 }
 
