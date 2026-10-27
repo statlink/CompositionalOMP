@@ -21,7 +21,7 @@ The compositional responses, zero values are allowed.
 A matrix with continuous data, where the rows denote the observations and the columns are the variables.
 }
 \item{type}{
-Use either "diri" for Dirichlet regression or "alpha" for the \eqn{\alpha}-regression.
+Use either "diri" for Dirichlet regression or "areg" for the \eqn{\alpha}-regression.
 }
 \item{a}{
 The value of \eqn{\alpha} for the \eqn{\alpha}-transformation.
@@ -98,5 +98,6 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}.
 y <- as.matrix(iris[, 1:4])
 y <- y / rowSums(y)
 x <- matrix(rnorm(150 * 10), ncol = 10)
+boot.gomp(y, x, type = "areg", a = 1, B = 100)
 }
 

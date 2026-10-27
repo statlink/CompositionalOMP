@@ -9,7 +9,7 @@ boot.gomp <- function(y, x, type = "diri", a = 1, xstand = TRUE, sig = 0.05, ebi
     yb <- y[ina, ]   ;   xb <- x[ina, ]
     if ( type == "diri" ) {
       CompositionalOMP::diri.gomp(yb, xb, xstand = xstand, sig = sig, ebic = ebic)$res[-1, 1]
-    } else {
+    } else if ( type == "areg" ) {
       CompositionalOMP::areg.gomp(yb, xb, a = a, xstand = xstand, sig = sig)$res[-1, 1]
     }
   }
