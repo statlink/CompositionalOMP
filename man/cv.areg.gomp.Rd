@@ -10,7 +10,7 @@ Cross-validation for \eqn{gamma}-OMP algorithm for the \eqn{alpha}-regression.
 
 \usage{
 cv.areg.gomp(y, x, a = seq(0.1, 1, by = 0.1), sig = 0.05,
-nfolds = 10, folds = NULL, seed = NULL, ncores = 1)
+nfolds = 10, folds = NULL, seed = NULL)
 }
 
 \arguments{
@@ -35,9 +35,6 @@ If you aleady have the list with the folds pass it here.
 }
 \item{seed}{
 If you want the folds to be the same type a seed number here.
-}
-\item{ncores}{
-If you want parallel computations specify the number of cores to use.
 }
 }
 

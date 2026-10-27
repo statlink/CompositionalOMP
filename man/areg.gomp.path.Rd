@@ -12,7 +12,7 @@ with a grid of \eqn{\alpha} values.
 
 \usage{
 areg.gomp.path(y, x, a = seq(-1, 1, by = 0.1), xstand = TRUE, sig = 0.05,
-model = FALSE, ncores = 1)
+model = FALSE)
 }
 
 \arguments{
@@ -34,9 +34,6 @@ The significance level to terminate the algorithm, default value is 0.05.
 }
 \item{model}{
 Do you want to return the regression model with the finally selected variables?
-}
-\item{ncores}{
-If you want parallel computations specify the number of cores to use.
 }
 }
 
