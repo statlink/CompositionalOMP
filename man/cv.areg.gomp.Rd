@@ -9,7 +9,7 @@ Cross-validation for \eqn{gamma}-OMP algorithm for the \eqn{alpha}-regression.
 }
 
 \usage{
-cv.areg.gomp(y, x, a = seq(0.1, 1, by = 0.1), sig = 0.05, R = 499,
+cv.areg.gomp(y, x, a = seq(0.1, 1, by = 0.1), sig = 0.05,
 nfolds = 10, folds = NULL, seed = NULL, ncores = 1)
 }
 
@@ -26,9 +26,6 @@ A vector with \eqn{\alpha} values for the \eqn{\alpha}-transformation.
 }
 \item{sig}{
 The significance level to terminate the algorithm, default value is 0.05.
-}
-\item{R}{
-How many permutations to perform to test the significance of the candidate selected variable.
 }
 \item{nfolds}{
 The number of folds to create.

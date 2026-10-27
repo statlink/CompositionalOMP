@@ -1,4 +1,4 @@
-cv.areg.gomp <- function( y, x, a = seq(0.1, 1, by = 0.1), sig = 0.05, R = 499,
+cv.areg.gomp <- function( y, x, a = seq(0.1, 1, by = 0.1), sig = 0.05,
                          nfolds = 10, folds = NULL, seed = NULL, ncores = 1 ) {
   if ( min(y) == 0 )  a <- a[a>0]
   lena <- length(a)
@@ -15,7 +15,7 @@ cv.areg.gomp <- function( y, x, a = seq(0.1, 1, by = 0.1), sig = 0.05, R = 499,
     ytest <- y[ folds[[ i ]], ]
     xtrain <- x[ -folds[[ i ]], ]
     ytrain <- y[-folds[[ i ]], ]
-    path <- CompositionalOMP::areg.gomp.path(ytrain, xtrain, a = a, sig = sig, R = R,
+    path <- CompositionalOMP::areg.gomp.path(ytrain, xtrain, a = a, sig = sig,
                                              model = TRUE, ncores = ncores)$path
     ntest <- dim(ytest)[1]
     for ( j in 1:lena ) {

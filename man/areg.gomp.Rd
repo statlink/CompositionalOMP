@@ -9,7 +9,7 @@ The \eqn{gamma}-OMP algorithm for the \eqn{alpha}-regression.
 }
 
 \usage{
-areg.gomp(y, x, a = 1, xstand = TRUE, sig = 0.05, R = 499, model = FALSE)
+areg.gomp(y, x, a = 1, xstand = TRUE, sig = 0.05, model = FALSE)
 }
 
 \arguments{
@@ -27,9 +27,6 @@ If this is TRUE the independent variables are standardised.
 }
 \item{sig}{
 The significance level to terminate the algorithm, default value is 0.05.
-}
-\item{R}{
-How many permutations to perform to test the significance of the candidate selected variable.
 }
 \item{model}{
 Do you want to return the regression model with the finally selected variables?

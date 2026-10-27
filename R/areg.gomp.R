@@ -1,4 +1,4 @@
-areg.gomp <- function(y, x, a = 1, xstand = TRUE, sig = 0.05, R = 499, model = FALSE) {
+areg.gomp <- function(y, x, a = 1, xstand = TRUE, sig = 0.05, model = FALSE) {
 
   runtime <- proc.time()
 
@@ -14,8 +14,8 @@ areg.gomp <- function(y, x, a = 1, xstand = TRUE, sig = 0.05, R = 499, model = F
   for ( j in 2:d )  ela <- ela + Rfast::eachcol.apply(x, ya[, j])^2
   sel <- which.max(ela)
   sela <- NULL
-  rho <- c(0, CompositionalSR::alfa.betest(y, x[, sel], a, index = "all", R = R, ya = ya))
-
+  #rho <- c(0, CompositionalSR::alfa.betest(y, x[, sel], a, index = "all", R = R, ya = ya))
+  rho <- c(0, CompositionalOMP::areg.ftest(y, x[, sel], a, index = 1, ya = ya)[2] )
   i <- 2
   while ( rho[i] < sig  &  length(sela) < p - 1  &  i < n ) {
     i <- i + 1
@@ -29,7 +29,8 @@ areg.gomp <- function(y, x, a = 1, xstand = TRUE, sig = 0.05, R = 499, model = F
     r[ind] <- Rfast::eachcol.apply(x, res[, 1], indices = ii)^2
     for ( j in 2:d )  r[ind] <- r[ind] + Rfast::eachcol.apply(x, res[, j], indices = ii)^2
     sel <- which.max(r)
-    rho[i] <- CompositionalSR::alfa.betest(y, x[, c(sel, sela)], a, index = 1, R = R, ya = ya)
+    #rho[i] <- CompositionalSR::alfa.betest(y, x[, c(sel, sela)], a, index = 1, R = R, ya = ya)
+    rho[i] <- CompositionalOMP::areg.ftest(y, x[, c(sel, sela)], a, index = 1, ya = ya)[2]
   }
 
   len <- length(sela)

@@ -1,5 +1,5 @@
 boot.gomp <- function(y, x, type = "diri", a = 1, xstand = TRUE, sig = 0.05, ebic = FALSE,
-                      B = 500, R = 499, ncores = 1) {
+                      B = 500, ncores = 1) {
 
   runtime <- proc.time()
   n <- dim(y)[1]
@@ -10,7 +10,7 @@ boot.gomp <- function(y, x, type = "diri", a = 1, xstand = TRUE, sig = 0.05, ebi
     if ( type == "diri" ) {
       CompositionalOMP::diri.gomp(yb, xb, xstand = xstand, sig = sig, ebic = ebic)$res[-1, 1]
     } else {
-      CompositionalOMP::areg.gomp(yb, xb, a = a, xstand = xstand, sig = sig, R = R)$res[-1, 1]
+      CompositionalOMP::areg.gomp(yb, xb, a = a, xstand = xstand, sig = sig)$res[-1, 1]
     }
   }
 

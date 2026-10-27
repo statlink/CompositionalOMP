@@ -10,7 +10,7 @@ Bootstapping the \eqn{gamma}-OMP algorithm.
 
 \usage{
 boot.gomp(y, x, type = "diri", a = 1, xstand = TRUE, sig = 0.05,
-ebic = FALSE,  B = 500, R = 499, ncores = 1)
+ebic = FALSE,  B = 500, ncores = 1)
 }
 
 \arguments{
@@ -38,10 +38,6 @@ is for the Dirichlet regression.
 }
 \item{B}{
 How many bootstap replicates to perform?
-}
-\item{R}{
-How many permutations to perform to test the significance of the candidate selected variable for the
-\eqn{\alpha}-regression.
 }
 \item{ncores}{
 If you want parallel computations specify the number of cores to use.

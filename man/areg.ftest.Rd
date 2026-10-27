@@ -9,7 +9,7 @@ F-test for hypothesis testing in the \eqn{alpha}-regression.
 }
 
 \usage{
-areg.ftest(y, x, a, index)
+areg.ftest(y, x, a, index, ya = NULL)
 }
 
 \arguments{
@@ -17,13 +17,17 @@ areg.ftest(y, x, a, index)
 The compositional responses, zero values are allowed.
 }
 \item{x}{
-A matrix with continuous data, where the rows denote the observations and the columns are the variables.
+A matrix with continuous data, where the rows denote the observations
+and the columns are the variables.
 }
 \item{a}{
 The value of \eqn{\alpha} for the \eqn{\alpha}-transformation.
 }
 \item{index}{
 A number specifying which variable to test.
+}
+\item{ya}{
+If you already have the \eqn{\alpha}-transformed data pass them here.
 }
 }
 

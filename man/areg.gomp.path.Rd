@@ -12,7 +12,7 @@ with a grid of \eqn{\alpha} values.
 
 \usage{
 areg.gomp.path(y, x, a = seq(-1, 1, by = 0.1), xstand = TRUE, sig = 0.05,
-R = 499, model = FALSE, ncores = 1)
+model = FALSE, ncores = 1)
 }
 
 \arguments{
@@ -31,9 +31,6 @@ If this is TRUE the independent variables are standardised.
 }
 \item{sig}{
 The significance level to terminate the algorithm, default value is 0.05.
-}
-\item{R}{
-How many permutations to perform to test the significance of the candidate selected variable.
 }
 \item{model}{
 Do you want to return the regression model with the finally selected variables?

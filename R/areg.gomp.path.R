@@ -1,4 +1,4 @@
-areg.gomp.path <- function(y, x, a = seq(-1, 1, by = 0.1), xstand = TRUE, sig = 0.05, R = 499,
+areg.gomp.path <- function(y, x, a = seq(-1, 1, by = 0.1), xstand = TRUE, sig = 0.05,
                            model = FALSE, ncores = 1) {
 
   runtime <- proc.time()
@@ -8,7 +8,7 @@ areg.gomp.path <- function(y, x, a = seq(-1, 1, by = 0.1), xstand = TRUE, sig = 
   lena <- length(a)
 
   fun <- function(i) {
-    CompositionalOMP::areg.gomp(y, x, a = a[i], xstand = FALSE, sig = sig, R = R, model = model)
+    CompositionalOMP::areg.gomp(y, x, a = a[i], xstand = FALSE, sig = sig, model = model)
   }
 
   if ( ncores <= 1 ) {
@@ -18,7 +18,7 @@ areg.gomp.path <- function(y, x, a = seq(-1, 1, by = 0.1), xstand = TRUE, sig = 
     environment(fun) <- globalenv()   ## workers look up everything in their own global env
     cl <- parallel::makeCluster(ncores)
     on.exit( parallel::stopCluster(cl), add = TRUE )
-    parallel::clusterExport(cl, c("y", "x", "a", "sig", "R", "model"), envir = environment())
+    parallel::clusterExport(cl, c("y", "x", "a", "sig", "model"), envir = environment())
     path <- parallel::parLapply(cl, 1:lena, fun)
   }
 
