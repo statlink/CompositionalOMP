@@ -93,6 +93,6 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}.
 y <- as.matrix(iris[, 1:4])
 y <- y / rowSums(y)
 x <- matrix(rnorm(150 * 10), ncol = 10)
-boot.gomp(y, x, type = "areg", a = 1, B = 100)
+boot.gomp(y, x, type = "areg", a = 1, B = 50)
 }
 
