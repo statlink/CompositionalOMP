@@ -16,7 +16,7 @@ cv.diri.gomp <- function(y, x, sig = 0.05, nfolds = 10, folds = NULL, seed = NUL
     ytrain <- y[-folds[[ i ]], ]
     mod <- CompositionalOMP::diri.gomp(ytrain, xtrain, sig = sig, model = TRUE)
     ntest <- dim(ytest)[1]
-    res <- mod$res[-1, 1]
+    res <- mod$pvalue.res[-1, 1]
     if ( length(res) == 0 ) {
       est <- Compositional::frechet(ytrain, 1)
       est <- matrix( rep(est, ntest), nrow = ntest, byrow = TRUE)
@@ -28,14 +28,17 @@ cv.diri.gomp <- function(y, x, sig = 0.05, nfolds = 10, folds = NULL, seed = NUL
     kl[ is.infinite(kl) ] <- NA
     kula[i, 1] <- sum(kl, na.rm = TRUE) / dim(est)[1]
     ### eBIC now
-    res <- dirigomp.ebic.update(mod$res, dim(ytrain)[1], p)[-1, 1]
+    res <- mod$ebic.res[-1, 1]
     if ( length(res) == 0 ) {
-      est <- Rfast::rowmeans(ytrain)
+      est <- Compositional::frechet(ytrain, 1)
       est <- matrix( rep(est, ntest), nrow = ntest, byrow = TRUE)
-    } else  est <- Compositional::diri.reg.irls(ytrain, xtrain[, res], xnew = xtest[, res])$est
+    } else {
+      est <- cbind(1, exp( cbind(1, xtest[, res]) %*% mod$mod$be ) )
+      est <- est / Rfast::rowsums(est)
+    }
     kl <- ytest * log(ytest / est)
     kl[ is.infinite(kl) ] <- NA
-    kula[i, 2] <- sum(kl, na.rm = TRUE) / dim(est)[1]
+    kula[i, 1] <- sum(kl, na.rm = TRUE) / dim(est)[1]
   }
 
   kl <- Rfast::colmeans(kula)

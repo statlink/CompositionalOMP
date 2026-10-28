@@ -9,7 +9,7 @@ The \eqn{gamma}-OMP algorithm for the Dirichlet-regression.
 }
 
 \usage{
-diri.gomp(y, x, xstand = TRUE, sig = 0.05, ebic = FALSE, model = FALSE)
+diri.gomp(y, x, xstand = TRUE, sig = 0.05, model = FALSE)
 }
 
 \arguments{
@@ -25,9 +25,6 @@ If this is TRUE the independent variables are standardised.
 \item{sig}{
 The significance level to terminate the algorithm, default value is 0.05.
 }
-\item{ebic}{
-Shall the algorithm use the extended BIC (eBIC) of Chen and Chen (2012) as an extra filter?
-}
 \item{model}{
 Do you want to return the regression model with the finally selected variables?
 }
@@ -38,9 +35,13 @@ A list including:
 \item{runtime}{
 The runtime of the algorithm.
 }
-\item{res}{
-A matrix with three columns, the selected variable(s), the sum of squares of the errors in the
-\eqn{\alpha}-transformed space and the p-value(s).
+\item{pvalue.res}{
+A matrix with three columns, the selected variable(s), the log-likelihood
+and the p-value(s).
+}
+\item{ebic.res}{
+The same matrix as above but includes only the variables selected using the
+extended BIC (eBIC) of Chen and Chen (2012) as an extra filter.
 }
 }
 
@@ -84,7 +85,7 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}.
 %}
 
 \seealso{
-\code{ \link{areg.gomp} }
+\code{\link{cv.diri.gomp}, \link{areg.gomp} }
 }
 
 \examples{

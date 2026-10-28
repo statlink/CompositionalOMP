@@ -1,4 +1,4 @@
-diri.gomp <- function(y, x, xstand = TRUE, sig = 0.05, ebic = FALSE, model = FALSE) {
+diri.gomp <- function(y, x, xstand = TRUE, sig = 0.05, model = FALSE) {
 
   runtime <- proc.time()
 
@@ -45,10 +45,11 @@ diri.gomp <- function(y, x, xstand = TRUE, sig = 0.05, ebic = FALSE, model = FAL
   }
 
   len <- length(sela)
-  res <- cbind( c(0, sela), lik[1:(len + 1)], c(NA, rho[seq_len(len) + 1]) )
-  colnames(res) <- c("Selected", "log-lik", "p-value")
+  pvalue.res <- cbind( c(0, sela), lik[1:(len + 1)], c(NA, rho[seq_len(len) + 1]) )
+  colnames(pvalue.res) <- c("Selected", "log-lik", "p-value")
 
-  if ( ebic  &  dim(res)[1] > 1 ) {
+  res <- pvalue.res   ;   ebic.res <- NULL
+  if ( dim(pvalue.res)[1] > 1 ) {
     sel <- 1:c(len + 1)
     if ( n > p )  gam <- 0 else gam <- 0.5
     for ( i in 1:len ) {
@@ -57,8 +58,7 @@ diri.gomp <- function(y, x, xstand = TRUE, sig = 0.05, ebic = FALSE, model = FAL
         sel[i + 1] <- 0
       }
     }
-    res <- res[sel, , drop = FALSE]
-    if ( dim(res)[1] > 1 )  sela <- res[-1, 1]  else  sela <- 0
+    ebic.res <- res[sel, , drop = FALSE]
   }
 
   mod <- NULL
@@ -66,7 +66,7 @@ diri.gomp <- function(y, x, xstand = TRUE, sig = 0.05, ebic = FALSE, model = FAL
 
   runtime <- proc.time() - runtime
 
-  list(runtime = runtime, res = res, mod = mod)
+  list(runtime = runtime, pvalue.res = pvalue.res, ebic.res = ebic.res, mod = mod)
 }
 
 
