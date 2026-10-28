@@ -9,7 +9,7 @@ The \eqn{gamma}-OMP algorithm for the Dirichlet-regression.
 }
 
 \usage{
-diri.gomp(y, x, xstand = TRUE, sig = 0.05, model = FALSE)
+diri.gomp(y, x, sig = 0.05, model = FALSE)
 }
 
 \arguments{
@@ -18,9 +18,6 @@ The compositional responses, zero values are not allowed.
 }
 \item{x}{
 A matrix with continuous data, where the rows denote the observations and the columns are the variables.
-}
-\item{xstand}{
-If this is TRUE the independent variables are standardised.
 }
 \item{sig}{
 The significance level to terminate the algorithm, default value is 0.05.

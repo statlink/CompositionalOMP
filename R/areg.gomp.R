@@ -1,8 +1,10 @@
-areg.gomp <- function(y, x, a = 1, xstand = TRUE, sig = 0.05, model = FALSE) {
+areg.gomp <- function(y, x, a = 1, sig = 0.05, model = FALSE) {
 
   runtime <- proc.time()
 
-  if ( xstand )  x <- Rfast::standardise(x)
+  mx <- Rfast::colmeans(x)
+  sx <- Rfast::colVars(x, std = TRUE)
+  x <- Rfast::standardise(x)
   d <- dim(y)[2] - 1
   dm <- dim(x)   ;   n <- dm[1]
   p <- dm[2]     ;   ind <- 1:p
@@ -38,7 +40,11 @@ areg.gomp <- function(y, x, a = 1, xstand = TRUE, sig = 0.05, model = FALSE) {
   colnames(res) <- c("Selected", "SSE", "p-value")
 
   mod <- NULL
-  if ( model &  dim(res)[1] > 1 )  mod <- CompositionalSR::areg(y, x[, sela, drop = FALSE], a, yb = ya)
+  if ( model &  dim(res)[1] > 1 )  {
+    xsela <- x[, sela, drop = FALSE]
+    xsela <- t( t(xsela) * sx[sela]  + mx[sela] )
+    mod <- CompositionalSR::areg(y, xsela, a, yb = ya)
+  }
 
   runtime <- proc.time() - runtime
 

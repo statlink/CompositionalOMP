@@ -1,8 +1,10 @@
-diri.gomp <- function(y, x, xstand = TRUE, sig = 0.05, model = FALSE) {
+diri.gomp <- function(y, x, sig = 0.05, model = FALSE) {
 
   runtime <- proc.time()
 
-  if ( xstand )  x <- Rfast::standardise(x)
+  mx <- Rfast::colmeans(x)
+  sx <- Rfast::colVars(x, std = TRUE)
+  x <- Rfast::standardise(x)
   d <- dim(y)[2] - 1
   dm <- dim(x)   ;   n <- dm[1]
   p <- dm[2]     ;   ind <- 1:p
@@ -62,7 +64,11 @@ diri.gomp <- function(y, x, xstand = TRUE, sig = 0.05, model = FALSE) {
   }
 
   mod <- NULL
-  if ( model  &  dim(res)[1] > 1 )  mod <- Compositional::diri.reg.irls(y, x[, sela, drop = FALSE])
+  if ( model  &  dim(res)[1] > 1 )  {
+    xsela <- x[, sela, drop = FALSE]
+    xsela <- t( t(xsela) * sx[sela]  + mx[sela] )
+    mod <- Compositional::diri.reg.irls(y, xsela)
+  }
 
   runtime <- proc.time() - runtime
 

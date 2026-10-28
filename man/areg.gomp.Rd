@@ -9,7 +9,7 @@ The \eqn{gamma}-OMP algorithm for the \eqn{alpha}-regression.
 }
 
 \usage{
-areg.gomp(y, x, a = 1, xstand = TRUE, sig = 0.05, model = FALSE)
+areg.gomp(y, x, a = 1, sig = 0.05, model = FALSE)
 }
 
 \arguments{
@@ -21,9 +21,6 @@ A matrix with continuous data, where the rows denote the observations and the co
 }
 \item{a}{
 The value of \eqn{\alpha} for the \eqn{\alpha}-transformation.
-}
-\item{xstand}{
-If this is TRUE the independent variables are standardised.
 }
 \item{sig}{
 The significance level to terminate the algorithm, default value is 0.05.

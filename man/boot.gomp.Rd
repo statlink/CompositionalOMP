@@ -9,24 +9,21 @@ Bootstapping the \eqn{gamma}-OMP algorithm.
 }
 
 \usage{
-boot.gomp(y, x, type = "diri", a = 1, xstand = TRUE, sig = 0.05, B = 500, ncores = 1)
+boot.gomp(y, x, type = "areg", a = 1, sig = 0.05, B = 500, ncores = 1)
 }
 
 \arguments{
 \item{y}{
-The compositional responses, zero values are allowed.
+The compositional responses, zero values are allowed, only if type = "areg".
 }
 \item{x}{
 A matrix with continuous data, where the rows denote the observations and the columns are the variables.
 }
 \item{type}{
-Use either "diri" for Dirichlet regression or "areg" for the \eqn{\alpha}-regression.
+Use either "areg" for \eqn{\alpha}-regression, or "diri" for Dirichlet regression.
 }
 \item{a}{
 The value of \eqn{\alpha} for the \eqn{\alpha}-transformation.
-}
-\item{xstand}{
-If this is TRUE the independent variables are standardised.
 }
 \item{sig}{
 The significance level to terminate the algorithm, default value is 0.05.
