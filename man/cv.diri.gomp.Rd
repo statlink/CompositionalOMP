@@ -88,7 +88,7 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}.
 \examples{
 y <- as.matrix(iris[, 1:4])
 y <- y / rowSums(y)
-x <- matrix(rnorm(150 * 10), ncol = 10)
+x <- matrix(rnorm(150 * 5), ncol = 5)
 mod <- cv.diri.gomp(y, x)
 }
 

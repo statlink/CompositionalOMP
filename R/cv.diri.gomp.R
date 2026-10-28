@@ -35,7 +35,7 @@ cv.diri.gomp <- function(y, x, sig = 0.05, nfolds = 10, folds = NULL, seed = NUL
     } else  est <- Compositional::diri.reg.irls(ytrain, xtrain[, res], xnew = xtest[, res])$est
     kl <- ytest * log(ytest / est)
     kl[ is.infinite(kl) ] <- NA
-    kula[i, 1] <- sum(kl, na.rm = TRUE) / dim(est)[1]
+    kula[i, 2] <- sum(kl, na.rm = TRUE) / dim(est)[1]
   }
 
   kl <- Rfast::colmeans(kula)
