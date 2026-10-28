@@ -32,7 +32,7 @@ cv.diri.gomp <- function(y, x, sig = 0.05, nfolds = 10, folds = NULL, seed = NUL
     if ( length(res) == 0 ) {
       est <- Compositional::frechet(ytrain, 1)
       est <- matrix( rep(est, ntest), nrow = ntest, byrow = TRUE)
-    } else  est <- Compositional::diri.reg.irls(y, xtrain[, res], xnew = xtest[, res])$est
+    } else  est <- Compositional::diri.reg.irls(ytrain, xtrain[, res], xnew = xtest[, res])$est
     kl <- ytest * log(ytest / est)
     kl[ is.infinite(kl) ] <- NA
     kula[i, 1] <- sum(kl, na.rm = TRUE) / dim(est)[1]
