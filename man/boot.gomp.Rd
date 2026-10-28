@@ -9,8 +9,7 @@ Bootstapping the \eqn{gamma}-OMP algorithm.
 }
 
 \usage{
-boot.gomp(y, x, type = "diri", a = 1, xstand = TRUE, sig = 0.05,
-ebic = FALSE,  B = 500, ncores = 1)
+boot.gomp(y, x, type = "diri", a = 1, xstand = TRUE, sig = 0.05, B = 500, ncores = 1)
 }
 
 \arguments{
@@ -31,10 +30,6 @@ If this is TRUE the independent variables are standardised.
 }
 \item{sig}{
 The significance level to terminate the algorithm, default value is 0.05.
-}
-\item{ebic}{
-Shall the algorithm use the extended BIC (eBIC) of Chen and Chen (2012) as an extra filter? This
-is for the Dirichlet regression.
 }
 \item{B}{
 How many bootstap replicates to perform?
