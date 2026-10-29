@@ -65,11 +65,11 @@ diri.gomp <- function(y, x, sig = 0.05, model = FALSE) {
 
   mod <- NULL
   if ( model  &  dim(res)[1] > 1 )  {
-    #be[-1, ] <- be[-1, , drop = FALSE] / sx[sela]
-    #be[1, ] <- be[1, ] - Rfast::colsums( mx[sela] * be[-1, , drop = FALSE] )
     xsela <- x[, sela, drop = FALSE]
-    xsela <- t( t(xsela) * sx[sela]  + mx[sela] )
-    mod <- Compositional::diri.reg.irls(y, xsela)
+	#xsela <- t( t(xsela) * sx[sela]  + mx[sela] 
+	mod <- Compositional::diri.reg.irls(y, xsela)
+    mod$be[-1, ] <- mod$be[-1, , drop = FALSE] / sx[sela]
+    mod$be[1, ] <- mod$be[1, ] - Rfast::colsums( mx[sela] * mod$be[-1, , drop = FALSE] )
   }
 
   runtime <- proc.time() - runtime
