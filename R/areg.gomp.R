@@ -41,6 +41,8 @@ areg.gomp <- function(y, x, a = 1, sig = 0.05, model = FALSE) {
 
   mod <- NULL
   if ( model &  dim(res)[1] > 1 )  {
+    #be[-1, ] <- be[-1, , drop = FALSE] / sx[sela]
+    #be[1, ] <- be[1, ] - Rfast::colsums( mx[sela] * be[-1, , drop = FALSE] )
     xsela <- x[, sela, drop = FALSE]
     xsela <- t( t(xsela) * sx[sela]  + mx[sela] )
     mod <- CompositionalSR::areg(y, xsela, a, yb = ya)

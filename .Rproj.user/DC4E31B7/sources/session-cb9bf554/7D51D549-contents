@@ -1,0 +1,79 @@
+smr.lasso <- function(y, x, lambda = NULL, tol = 1e-06, eps = 1e-6,
+                        step_min = 1e-12, max_bt = 50, xnew = NULL) {
+
+  p <- dim(x)[2]   ;    d <- dim(y)[2]   ;    n <- dim(y)[1]
+  mod0 <- glmnet::glmnet( x, y, family = "mgaussian", lambda = lambda )
+  lambda <- mod0$lambda
+  len <- length(lambda)
+  B <- matrix( nrow = p + 1, ncol = d )
+  rownames(B) <- rownames( coef(mod0)[[ 1 ]] )
+  colnames(B) <- colnames(y)
+  if ( is.null( colnames(y) ) ) colnames(B) <- paste("Y", 1:d, sep = "")
+  x1 <- cbind(1, x)
+  be <- est <- list()   ;   norm <- iters <- nz <- numeric(len)
+  if ( !is.null(xnew) )  xnew <- cbind(1, xnew)
+
+  for ( k in 1:len ) {
+    for ( j in 1:d )  B[, j] <- coef(mod0)[[ j ]][, k]
+    lam <- lambda[k]
+    res <- y - x1 %*% B
+    ww <- sqrt( Rfast::rowsums(res^2) + eps^2 )
+    d1 <- sum(ww)
+
+    mod <- glmnet::glmnet( x, y, weights = 1/ww, family = "mgaussian", lambda = lam )
+    Bcand <- B
+    for ( j in 1:d )  Bcand[, j] <- coef(mod)[[ j ]][, 1]
+
+    step <- 1
+    Btrial <- Bcand
+    r <- y - x1 %*% Btrial
+    d2 <- sum( sqrt( Rfast::rowsums(r^2) + eps^2 ) )
+    nbt <- 0
+    while ( d2 > d1 + 1e-12  &&  step > step_min  &&  nbt < max_bt ) {
+      step <- step / 2
+      Btrial <- B + step * (Bcand - B)
+      r <- y - x1 %*% Btrial
+      d2 <- sum( sqrt( Rfast::rowsums(r^2) + eps^2 ) )
+      nbt <- nbt + 1
+    }
+    B <- Btrial
+    res <- y - x1 %*% B
+    ww  <- sqrt( Rfast::rowsums(res^2) + eps^2 )
+    i <- 2
+
+    while (  d1 - d2 > tol )  {
+      i <- i + 1
+      d1 <- d2
+      mod <- glmnet::glmnet( x, y, weights = 1/ww, family = "mgaussian", lambda = lam )
+      Bcand <- B
+      for ( j in 1:d )  Bcand[, j] <- coef(mod)[[ j ]][, 1]
+
+      step <- 1
+      Btrial <- Bcand
+      r <- y - x1 %*% Btrial
+      d2 <- sum( sqrt( Rfast::rowsums(r^2) + eps^2 ) )
+      nbt <- 0
+      while ( d2 > d1 + 1e-12  &&  step > step_min  &&  nbt < max_bt ) {
+        step <- step / 2
+        Btrial <- B + step * (Bcand - B)
+        r <- y - x1 %*% Btrial
+        d2 <- sum( sqrt( Rfast::rowsums(r^2) + eps^2 ) )
+        nbt <- nbt + 1
+      }
+      B <- Btrial
+      res <- y - x1 %*% B
+      ww <- sqrt( Rfast::rowsums(res^2) + eps^2 )
+    }
+
+    be[[ k ]] <- B
+    norm[k] <- d2/n
+    iters[k] <- i + 2
+    nz[k] <- sum( B != 0 )
+    if ( !is.null(xnew) )  est[[ k ]] <- xnew %*% B
+  }
+
+  info <- cbind(lambda, nz, iters, norm)
+  colnames(info) <- c("lambda", "non-zero", "iters", "norm")
+  if ( is.null(xnew) )  est <- NULL
+  list(info = info, be = be, est = est)
+}

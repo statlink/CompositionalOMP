@@ -1,0 +1,26 @@
+{
+    "id": "1D9067BB",
+    "path": "~/GitHub/CompositionalOMP/R/areg.gomp.R",
+    "project_path": "R/areg.gomp.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1793262876020.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "48,3",
+        "scrollLine": "28"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1793263031,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1793263031676,
+    "read_only": false,
+    "read_only_alternatives": []
+}
