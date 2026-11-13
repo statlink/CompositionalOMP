@@ -10,17 +10,54 @@ diri.gomp <- function(y, x, sig = 0.05, model = FALSE) {
   p <- dm[2]     ;   ind <- 1:p
   ly <- log(y)
 
+  ## score residuals of the Dirichlet log-likelihood w.r.t. the d linear predictors
+  score.res <- function(mu, phi) {
+    h <- ly - digamma(phi * mu)
+    hbar <- Rfast::rowsums(mu * h)
+    phi * mu[, -1, drop = FALSE] * (h[, -1, drop = FALSE] - hbar)
+  }
+
+  pick <- function(res, ii, xs = NULL) {
+    r <- Rfast::eachcol.apply(x, res[, 1], indices = ii)^2
+    for ( j in seq_len(d)[-1] )  r <- r + Rfast::eachcol.apply(x, res[, j], indices = ii)^2
+    o <- order(r, decreasing = TRUE)
+    cand <- ii[o][ r[o] > 0 ]
+    if ( is.null(xs) )  return( list(sel = cand[1], drop = NULL) )
+    qrs <- qr(xs)
+    drop <- NULL
+    for ( k in cand ) {
+      e <- qr.resid( qrs, x[, k] )
+      if ( sum(e^2) / (n - 1) > 1e-6 )  return( list(sel = k, drop = drop) )
+      drop <- c(drop, k)
+    }
+    list(sel = NA, drop = drop)
+  }
+
+  fit <- function(cols) {
+    xs <- x[, cols, drop = FALSE]
+    m <- tryCatch( Compositional::diri.reg.irls(y, xs, xnew = xs), error = function(e) NULL )
+    if ( is.null(m) || !is.finite(m$loglik) )  NULL  else  m
+  }
+
   mod <- Compositional::diri.nr(y)
   lik <- mod$loglik
-  ela <- Rfast::eachcol.apply(x, y[, 2])^2
-  for ( j in 3:d )  ela <- ela + Rfast::eachcol.apply(x, y[, j])^2
-  sel <- which.max(ela)
+  a0 <- mod$param
+  mu0 <- matrix(a0 / sum(a0), n, d + 1, byrow = TRUE)
+  sel <- pick( score.res(mu0, sum(a0)), ind )$sel
   sela <- NULL
-  mod <- Compositional::diri.reg.irls(y, x[, sel], xnew = x[, sel])
-  lik[2] <- mod$loglik
-  stat <- 2 * ( lik[2] - lik[1] )
-  pvalue <- pchisq(stat, d, lower.tail = FALSE)
-  rho <- c(0, pvalue)
+
+  if ( is.na(sel) ) {
+    rho <- c(0, 1)
+  } else {
+    m <- fit(sel)
+    if ( is.null(m) ) {
+      rho <- c(0, 1)
+    } else {
+      mod <- m
+      lik[2] <- mod$loglik
+      rho <- c(0, pchisq( 2 * (lik[2] - lik[1]), d, lower.tail = FALSE ) )
+    }
+  }
 
   i <- 2
   while ( rho[i] < sig  &  length(sela) < p - 1  &  i < n ) {
@@ -28,54 +65,141 @@ diri.gomp <- function(y, x, sig = 0.05, model = FALSE) {
     sela <- c(sela, sel)
     ind[sela] <- 0
 
-    mu <- mod$est
-    psi1_phi <- trigamma(mod$phi)
-    alpha <- mod$phi * mu
-    h <- ly - digamma(alpha)
-    hbar <- Rfast::rowsums(mu * h)
-    res <- mod$phi * mu[, -1] * (h[, -1] - hbar)
+    res <- score.res(mod$est, mod$phi)
+    pk <- pick( res, ind[ind > 0], x[, sela, drop = FALSE] )
+    ind[pk$drop] <- 0   ## collinear with the selected set now, so also later (the span only grows)
+    sel <- pk$sel
 
-    r <- numeric(p)
-    ii <- ind[ind > 0]
-    r[ind] <- Rfast::eachcol.apply(x, res[, 1], indices = ii)^2
-    for ( j in 2:d )  r[ind] <- r[ind] + Rfast::eachcol.apply(x, res[, j], indices = ii)^2
-    sel <- which.max(r)
-    mod <- Compositional::diri.reg.irls(y, x[, c(sela, sel)], xnew = x[, c(sela, sel)])
-    lik[i] <- mod$loglik
-    stat <- 2 * ( lik[i] - lik[i - 1] )
-    rho[i] <- pchisq(stat, d, lower.tail = FALSE)
+    if ( is.na(sel) ) {
+      rho[i] <- 1
+    } else {
+      m <- fit( c(sela, sel) )
+      if ( is.null(m) ) {
+        rho[i] <- 1
+      } else {
+        mod <- m
+        lik[i] <- mod$loglik
+        rho[i] <- pchisq( 2 * (lik[i] - lik[i - 1]), d, lower.tail = FALSE )
+      }
+    }
   }
 
   len <- length(sela)
   pvalue.res <- cbind( c(0, sela), lik[1:(len + 1)], c(NA, rho[seq_len(len) + 1]) )
   colnames(pvalue.res) <- c("Selected", "log-lik", "p-value")
 
-  res <- pvalue.res   ;   ebic.res <- NULL
-  if ( dim(pvalue.res)[1] > 1 ) {
-    sel <- 1:c(len + 1)
-    if ( n > p )  gam <- 0 else gam <- 0.5
-    for ( i in 1:len ) {
-      ebic <- 2 * log(n) + 2 * gam * (p - i) / (i + 1)
-      if ( 2 * (res[i + 1, 2] - res[i, 2] ) < ebic ) {
-        sel[i + 1] <- 0
-      }
-    }
-    ebic.res <- res[sel, , drop = FALSE]
+  ebic.res <- NULL
+  if ( len > 0 ) {
+    k <- 0:len
+    if ( n > p ) {
+      gam <- 0
+    } else  gam <- min( 1, 1 - log(n) / (2 * log(p)) + 0.05 )
+    ebic <- -2 * pvalue.res[, 2] + k * d * log(n) + 2 * gam * lchoose(p, k)
+    khat <- which.min(ebic)
+    ebic.res <- cbind( pvalue.res[1:khat, , drop = FALSE], eBIC = ebic[1:khat] )
   }
 
-  mod <- NULL
-  if ( model  &  dim(res)[1] > 1 )  {
-    xsela <- x[, sela, drop = FALSE]
-	#xsela <- t( t(xsela) * sx[sela]  + mx[sela] 
-	mod <- Compositional::diri.reg.irls(y, xsela)
+  mod <- mod.ebic <- NULL
+  sela.ebic <- ebic.res[-1, 1]
+  if ( model  &  len > 0 )  {
+    mod <- Compositional::diri.reg.irls(y, x[, sela, drop = FALSE])
     mod$be[-1, ] <- mod$be[-1, , drop = FALSE] / sx[sela]
     mod$be[1, ] <- mod$be[1, ] - Rfast::colsums( mx[sela] * mod$be[-1, , drop = FALSE] )
+    if ( length(sela.ebic) == len ) {
+      mod.ebic <- mod
+    } else if ( length(sela.ebic) > 0 ) {
+      mod.ebic <- Compositional::diri.reg.irls(y, x[, sela.ebic, drop = FALSE])
+      mod.ebic$be[-1, ] <- mod.ebic$be[-1, , drop = FALSE] / sx[sela.ebic]
+      mod.ebic$be[1, ] <- mod.ebic$be[1, ] - Rfast::colsums( mx[sela.ebic] * mod.ebic$be[-1, , drop = FALSE] )
+    }
   }
 
   runtime <- proc.time() - runtime
 
-  list(runtime = runtime, pvalue.res = pvalue.res, ebic.res = ebic.res, mod = mod)
+  list(runtime = runtime, pvalue.res = pvalue.res, mod = mod, ebic.res = ebic.res, mod.ebic = mod.ebic)
 }
+
+
+
+# diri.gomp <- function(y, x, sig = 0.05, model = FALSE) {
+#
+#   runtime <- proc.time()
+#
+#   mx <- Rfast::colmeans(x)
+#   sx <- Rfast::colVars(x, std = TRUE)
+#   x <- Rfast::standardise(x)
+#   d <- dim(y)[2] - 1
+#   dm <- dim(x)   ;   n <- dm[1]
+#   p <- dm[2]     ;   ind <- 1:p
+#   ly <- log(y)
+#
+#   mod <- Compositional::diri.nr(y)
+#   lik <- mod$loglik
+#   ela <- Rfast::eachcol.apply(x, y[, 2])^2
+#   for ( j in 3:d )  ela <- ela + Rfast::eachcol.apply(x, y[, j])^2
+#   sel <- which.max(ela)
+#   sela <- NULL
+#   mod <- Compositional::diri.reg.irls(y, x[, sel], xnew = x[, sel])
+#   lik[2] <- mod$loglik
+#   stat <- 2 * ( lik[2] - lik[1] )
+#   pvalue <- pchisq(stat, d, lower.tail = FALSE)
+#   rho <- c(0, pvalue)
+#
+#   i <- 2
+#   while ( rho[i] < sig  &  length(sela) < p - 1  &  i < n ) {
+#     i <- i + 1
+#     sela <- c(sela, sel)
+#     ind[sela] <- 0
+#
+#     mu <- mod$est
+#     alpha <- mod$phi * mu
+#     h <- ly - digamma(alpha)
+#     hbar <- Rfast::rowsums(mu * h)
+#     res <- mod$phi * mu[, -1] * (h[, -1] - hbar)
+#
+#     r <- numeric(p)
+#     ii <- ind[ind > 0]
+#     r[ind] <- Rfast::eachcol.apply(x, res[, 1], indices = ii)^2
+#     for ( j in 2:d )  r[ind] <- r[ind] + Rfast::eachcol.apply(x, res[, j], indices = ii)^2
+#     sel <- which.max(r)
+#     mod <- try( Compositional::diri.reg.irls(y, x[, c(sela, sel)], xnew = x[, c(sela, sel)]), silent = TRUE )
+#     if ( identical(class(mod), "try-error") ) {
+#       rho[i] <- 1
+#     } else {
+#       lik[i] <- mod$loglik
+#       stat <- 2 * ( lik[i] - lik[i - 1] )
+#       rho[i] <- pchisq(stat, d, lower.tail = FALSE)
+#     }
+#   }
+#
+#   len <- length(sela)
+#   pvalue.res <- cbind( c(0, sela), lik[1:(len + 1)], c(NA, rho[seq_len(len) + 1]) )
+#   colnames(pvalue.res) <- c("Selected", "log-lik", "p-value")
+#
+#   ebic.res <- NULL
+#   if ( dim(pvalue.res)[1] > 1 ) {
+#     k <- 0:len
+#     if ( n > p ) {
+#       gam <- 0
+#     } else  gam <- min( 1, 1 - log(n) / (2 * log(p)) + 0.05 )
+#     ebic <-  -2 * pvalue.res[, 2] + k * d * log(n) + 2 * gam * lchoose(p, k)
+#     khat <- which.min(ebic)
+#     ebic.res <- cbind( pvalue.res[1:khat, , drop = FALSE], eBIC = ebic[1:khat] )
+#   }
+#
+#   mod <- NULL
+#   if ( model  &  dim(res)[1] > 1 )  {
+#     xsela <- x[, sela, drop = FALSE]
+# 	  #xsela <- t( t(xsela) * sx[sela]  + mx[sela]
+# 	  mod <- Compositional::diri.reg.irls(y, xsela)
+#     mod$be[-1, ] <- mod$be[-1, , drop = FALSE] / sx[sela]
+#     mod$be[1, ] <- mod$be[1, ] - Rfast::colsums( mx[sela] * mod$be[-1, , drop = FALSE] )
+#   }
+#
+#   runtime <- proc.time() - runtime
+#
+#   list(runtime = runtime, pvalue.res = pvalue.res, ebic.res = ebic.res, mod = mod)
+#}
 
 
 

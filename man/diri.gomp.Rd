@@ -1,11 +1,11 @@
 \name{diri.gomp}
 \alias{diri.gomp}
 \title{
-The \eqn{gamma}-OMP algorithm for the Dirichlet-regression
+The CR-OMP algorithm using Dirichlet-regression
 }
 
 \description{
-The \eqn{gamma}-OMP algorithm for the Dirichlet-regression.
+The CR-OMP algorithm using Dirichlet-regression.
 }
 
 \usage{
@@ -38,7 +38,8 @@ and the p-value(s).
 }
 \item{ebic.res}{
 The same matrix as above but includes only the variables selected using the
-extended BIC (eBIC) of Chen and Chen (2012) as an extra filter.
+extended BIC (eBIC) of Chen and Chen (2012) as an extra filter. The 4rth column
+contains the eBIC.
 }
 }
 

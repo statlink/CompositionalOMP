@@ -1,11 +1,11 @@
 \name{areg.gomp}
 \alias{areg.gomp}
 \title{
-The \eqn{gamma}-OMP algorithm for the \eqn{alpha}-regression
+The CR-OMP algorithm using \eqn{alpha}-regression
 }
 
 \description{
-The \eqn{gamma}-OMP algorithm for the \eqn{alpha}-regression.
+The CR-OMP algorithm using \eqn{alpha}-regression.
 }
 
 \usage{
@@ -35,9 +35,21 @@ A list including:
 \item{runtime}{
 The runtime of the algorithm.
 }
-\item{res}{
+\item{pvalue.res}{
 A matrix with three columns, the selected variable(s), the sum of squares of the errors in the
 \eqn{\alpha}-transformed space and the p-value(s).
+}
+\item{be}{
+If model was TRUE the coefficients of the \eqn{\alpha}-regression using the p-value based
+selected variables.
+}
+\item{bic.res}{
+A matrix with three columns, the selected variable(s), the sum of squares of the errors in the
+\eqn{\alpha}-transformed space and the p-value(s).
+}
+\item{be.bic}{
+If model was TRUE the coefficients of the \eqn{\alpha}-regression using the BIC-based
+selected variables.
 }
 }
 
@@ -84,7 +96,7 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}.
 \examples{
 y <- as.matrix(iris[, 1:4])
 y <- y / rowSums(y)
-x <- matrix(rnorm(150 * 50), ncol = 50)
-mod <- areg.gomp(y, x, a = 1)
+x <- matrix(rnorm(150 * 500), ncol = 500)
+mod <- areg.gomp(y, x, a = 0.2)
 }
 

@@ -1,11 +1,11 @@
 \name{boot.gomp}
 \alias{boot.gomp}
 \title{
-Bootstapping the \eqn{gamma}-OMP algorithm
+Bootstapping the CR-OMP algorithm
 }
 
 \description{
-Bootstapping the \eqn{gamma}-OMP algorithm.
+Bootstapping the CR-OMP algorithm.
 }
 
 \usage{
@@ -41,8 +41,9 @@ A list including:
 \item{runtime}{
 The runtime of the algorithm.
 }
-\item{res}{
-A matrix with two columns, the selected variable(s), and their associated proportion of selection.
+\item{pvalue}{
+A matrix with two columns, the selected variable(s), and their associated
+proportion of selection for the p-value based CR-OMP.
 }
 }
 

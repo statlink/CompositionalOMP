@@ -1,9 +1,8 @@
-cv.diri.gomp <- function(y, x, sig = 0.05, nfolds = 10, folds = NULL, seed = NULL) {
+cv.diri.gomp <- function(y, x, sig = 0.05, nfolds = 10, folds = NULL) {
 
   n <- dim(y)[1]   ;   p <- dim(x)[2]
-  ina <- 1:n
-  if ( is.null(folds) )  folds <- Compositional::makefolds(ina, nfolds = nfolds,
-                                                           stratified = FALSE, seed = seed)
+  ina <- 1:n      ;    d <- dim(y)[2]
+  if ( is.null(folds) )  folds <- Compositional::makefolds(ina, nfolds = nfolds, stratified = FALSE)
   nfolds <- length(folds)
   apa <- proc.time()
   kula <- matrix(nrow = nfolds, ncol = 2)
@@ -19,23 +18,26 @@ cv.diri.gomp <- function(y, x, sig = 0.05, nfolds = 10, folds = NULL, seed = NUL
     res <- mod$pvalue.res[-1, 1]
     if ( length(res) == 0 ) {
       est <- Compositional::frechet(ytrain, 1)
-      est <- matrix( rep(est, ntest), nrow = ntest, byrow = TRUE)
+      est <- matrix(est, nrow = ntest, ncol = d, byrow = TRUE)
     } else {
       est <- cbind(1, exp( cbind(1, xtest[, res]) %*% mod$mod$be ) )
       est <- est / Rfast::rowsums(est)
     }
     kl <- ytest * log(ytest / est)
     kl[ is.infinite(kl) ] <- NA
-    kula[i, 1] <- sum(kl, na.rm = TRUE) / dim(est)[1]
+    kula[i, 1] <- sum(kl, na.rm = TRUE) / ntest
     ### eBIC now
     res <- mod$ebic.res[-1, 1]
     if ( length(res) == 0 ) {
       est <- Compositional::frechet(ytrain, 1)
-      est <- matrix( rep(est, ntest), nrow = ntest, byrow = TRUE)
-    } else  est <- Compositional::diri.reg.irls(ytrain, xtrain[, res], xnew = xtest[, res])$est
+      est <- matrix(est, nrow = ntest, ncol = d, byrow = TRUE)
+    } else {
+      est <- cbind(1, exp( cbind(1, xtest[, res]) %*% mod$mod.ebic$be ) )
+      est <- est / Rfast::rowsums(est)
+    }
     kl <- ytest * log(ytest / est)
     kl[ is.infinite(kl) ] <- NA
-    kula[i, 2] <- sum(kl, na.rm = TRUE) / dim(est)[1]
+    kula[i, 2] <- sum(kl, na.rm = TRUE) / ntest
   }
 
   kl <- Rfast::colmeans(kula)

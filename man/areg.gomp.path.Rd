@@ -1,13 +1,11 @@
 \name{areg.gomp.path}
 \alias{areg.gomp.path}
 \title{
-The \eqn{gamma}-OMP algorithm for the \eqn{alpha}-regression
-with a grid of \eqn{\alpha} values
+The CR-OMP algorithm using \eqn{alpha}-regression with a grid of \eqn{\alpha} values
 }
 
 \description{
-The \eqn{gamma}-OMP algorithm for the \eqn{alpha}-regression
-with a grid of \eqn{\alpha} values.
+The CR-OMP algorithm using \eqn{alpha}-regression with a grid of \eqn{\alpha} values.
 }
 
 \usage{

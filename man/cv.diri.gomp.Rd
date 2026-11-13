@@ -1,15 +1,15 @@
 \name{cv.diri.gomp}
 \alias{cv.diri.gomp}
 \title{
-Cross-validation for \eqn{gamma}-OMP algorithm for the Dirichlet regression
+Cross-validation for CR-OMP algorithm using Dirichlet regression
 }
 
 \description{
-Cross-validation for \eqn{gamma}-OMP algorithm for the Dirichlet regression.
+Cross-validation for CR-OMP algorithm using Dirichlet regression.
 }
 
 \usage{
-cv.diri.gomp(y, x, sig = 0.05, nfolds = 10, folds = NULL, seed = NULL)
+cv.diri.gomp(y, x, sig = 0.05, nfolds = 10, folds = NULL)
 }
 
 \arguments{
@@ -28,9 +28,6 @@ The number of folds to create.
 }
 \item{folds}{
 If you aleady have the list with the folds pass it here.
-}
-\item{seed}{
-If you want the folds to be the same type a seed number here.
 }
 }
 
