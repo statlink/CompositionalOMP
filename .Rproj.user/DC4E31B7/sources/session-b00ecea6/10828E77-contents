@@ -7,6 +7,7 @@ importFrom("Rfast", eachcol.apply, eachrow, standardise,
            colmeans, rowsums, Table)
 importFrom("rangen", Sample.int)
 importFrom("stats", pchisq, pf)
+importFrom("minpack.lm", nls.lm)
 import("parallel")
 
 exportPattern("^[[:alpha:]]+")

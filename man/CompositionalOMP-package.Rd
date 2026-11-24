@@ -12,7 +12,7 @@ The CR-OMP variable selection algorithm is an adaptation of the gamma-OMP to com
 Package: \tab CompositionalOMP\cr
 Type: \tab Package\cr
 Version: \tab 1.0\cr
-Date: \tab 2026-11-13\cr
+Date: \tab 2026-11-15\cr
 License: \tab GPL-2\cr
 }
 }
