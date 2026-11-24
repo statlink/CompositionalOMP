@@ -9,7 +9,7 @@ Cross-validation for CR-OMP algorithm using Dirichlet regression.
 }
 
 \usage{
-cv.diri.gomp(y, x, sig = 0.05, nfolds = 10, folds = NULL)
+cv.diri.gomp(y, x, sig = 0.05, nfolds = 10, folds = NULL, ncores = 1)
 }
 
 \arguments{
@@ -28,6 +28,9 @@ The number of folds to create.
 }
 \item{folds}{
 If you aleady have the list with the folds pass it here.
+}
+\item{ncores}{
+The number of cores to use for parallel computing.
 }
 }
 
