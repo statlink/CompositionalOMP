@@ -10,7 +10,7 @@ Cross-validation for CR-OMP algorithm using \eqn{alpha}-regression.
 
 \usage{
 cv.areg.gomp(y, x, a = seq(0.1, 1, by = 0.1), sig = 0.05,
-nfolds = 10, folds = NULL)
+nfolds = 10, folds = NULL, ncores = 1)
 }
 
 \arguments{
@@ -32,6 +32,9 @@ The number of folds to create.
 }
 \item{folds}{
 If you aleady have the list with the folds pass it here.
+}
+\item{ncores}{
+The number of cores to use for parallel computing.
 }
 }
 
