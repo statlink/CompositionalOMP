@@ -1,15 +1,15 @@
-#useDynLib(fsn, .registration = TRUE)
+useDynLib(CompositionalOMP, .registration = TRUE)
+importFrom(Rcpp, evalCpp)
 
-importFrom("Compositional", alfa, diri.reg.irls, diri.nr,
+importFrom("Compositional", alfa, diri.nr,
            makefolds, frechet)
 importFrom("CompositionalSR", areg, alfa.betest)
 importFrom("Rfast", eachcol.apply, eachrow, standardise,
            colmeans, rowsums, Table)
 importFrom("rangen", Sample.int)
-importFrom("stats", pchisq, pf)
+importFrom("stats", pchisq, pf, model.matrix)
 importFrom("minpack.lm", nls.lm)
 import("parallel")
 
 exportPattern("^[[:alpha:]]+")
-exportPattern("^[^\\.]")
 

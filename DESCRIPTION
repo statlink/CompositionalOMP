@@ -7,8 +7,9 @@ Authors@R: person("Michail", "Tsagris", role = c("aut", "cre"), email = "mtsagri
 Author: Michail Tsagris [aut, cre]
 Maintainer: Michail Tsagris <mtsagris@uoc.gr>
 Depends: R (>= 4.0)
-Imports: Compositional, CompositionalSR, minpack.lm, parallel, rangen, Rfast, stats
+Imports: Compositional, CompositionalSR, minpack.lm, parallel, rangen, Rcpp (>= 1.0.0), Rfast, stats
+LinkingTo: Rcpp, RcppArmadillo
 Suggests: Rfast2
 Description: The Compositional Regression-Orthogonal Matching Pursuit (CR-OMP) is an adaptation of the gamma-OMP variable selection algorithm for compositional responses. Dirichlet regression or alpha-regression may be employed, and cross-validation is available for both models. References: Tsagris M. (2026) <doi:10.1101/431734>. 
 License: GPL (>= 2)
-
+NeedsCompilation: yes
