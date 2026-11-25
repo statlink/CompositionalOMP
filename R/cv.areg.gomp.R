@@ -3,7 +3,7 @@ cv.areg.gomp <- function( y, x, a = seq(0.1, 1, by = 0.1), sig = 0.05,
   if ( min(y) == 0 )  a <- a[a > 0]
   lena <- length(a)
   n <- dim(y)[1]
-  d <- dim(y)[2]
+  D <- dim(y)[2]
   if ( is.null(folds) )  folds <- Compositional::makefolds(1:n, nfolds = nfolds, stratified = FALSE)
   nfolds <- length(folds)
   apa <- proc.time()
@@ -27,7 +27,7 @@ cv.areg.gomp <- function( y, x, a = seq(0.1, 1, by = 0.1), sig = 0.05,
       ## p-value
       res <- mod$pvalue.res[-1, 1]
       if ( length(res) == 0 ) {
-        est <- matrix( Compositional::frechet(ytrain, a[j]), nrow = ntest, ncol = d, byrow = TRUE )
+        est <- matrix( Compositional::frechet(ytrain, a[j]), nrow = ntest, ncol = D, byrow = TRUE )
       } else {
         est <- cbind(1, exp( cbind(1, xtest[, res, drop = FALSE]) %*% mod$be ) )
         est <- est / Rfast::rowsums(est)
@@ -36,7 +36,7 @@ cv.areg.gomp <- function( y, x, a = seq(0.1, 1, by = 0.1), sig = 0.05,
       ## BIC
       res <- mod$bic.res[-1, 1]
       if ( length(res) == 0 ) {
-        est <- matrix( Compositional::frechet(ytrain, a[j]), nrow = ntest, ncol = d, byrow = TRUE )
+        est <- matrix( Compositional::frechet(ytrain, a[j]), nrow = ntest, ncol = D, byrow = TRUE )
       } else {
         est <- cbind(1, exp( cbind(1, xtest[, res, drop = FALSE]) %*% mod$be.bic ) )
         est <- est / Rfast::rowsums(est)
@@ -51,7 +51,7 @@ cv.areg.gomp <- function( y, x, a = seq(0.1, 1, by = 0.1), sig = 0.05,
   } else {
     cl <- parallel::makePSOCKcluster(ncores)
     on.exit( parallel::stopCluster(cl), add = TRUE )
-    parallel::clusterExport(cl, varlist = c("x", "y", "a", "sig", "folds", "lena", "d", "kldfun"),
+    parallel::clusterExport(cl, varlist = c("x", "y", "a", "sig", "folds", "lena", "D", "kldfun"),
                             envir = environment())
     kk <- parallel::parLapply(cl, 1:nfolds, runfold)
   }

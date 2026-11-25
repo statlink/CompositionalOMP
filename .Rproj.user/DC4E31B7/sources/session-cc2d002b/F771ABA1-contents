@@ -1,0 +1,160 @@
+library(Rfast)
+library("Compositional")
+library(CompositionalSR)
+library(CompositionalOMP)
+library(CompositionalLASSO)
+library(xtable)
+library(openxlsx)
+
+
+### Data
+z <- read.csv("data.csv")
+y <- z[-55, c(14, 15, 18, 19)]
+y <- as.matrix(y)
+y <- y / rowsums(y)
+x <- z[-55, - c(1, 14, 15, 18, 19, 20)]
+x <- x[, 1:12]
+x <- as.matrix(x)
+nama <- colnames(x)
+
+R <- 20
+sel1 <- sel2 <- sel3 <- sel4 <- sel5 <- sel6 <- list()
+perf1 <- perf2 <- perf3 <- perf4 <- perf5 <- perf6 <- asel <- bsel <- numeric(R)
+for ( i in 1:R ) {
+  folds <- Compositional::makefolds(1:dim(y)[1], 10, stratified = FALSE)
+  mod1 <- cv.areg.gomp(y, x, a = seq(-1, 1, by = 0.1), folds = folds )
+  mod1a <- areg.gomp(y, x, a = mod1$opt[1, 2])
+  mod1b <- areg.gomp(y, x, a = mod1$opt[2, 2])
+  asel[i] <- mod1$opt[1, 2]   ;   bsel[i] <- mod1$opt[2, 2]
+  mod2 <- cv.diri.gomp(y, x, folds = folds)
+  mod2a <- diri.gomp(y, x)
+  mod3 <- CompositionalLASSO::cv.lasso.klcompreg(y, x, folds = folds)
+  mod4 <- CompositionalLASSO::cv.lasso.compreg(y, x, folds = folds)
+  perf1[i] <- mod1$opt[1, 1]  ;  perf2[i] <- mod1$opt[2, 1]  ;  perf3[i] <- mod2$perf[1]
+  perf4[i] <- mod2$perf[2]    ;  perf5[i] <- mod3$opt[2]     ;  perf6[i] <- mod4$opt[2]
+  sel1[[ i ]] <- mod1a$pvalue.res[-1, 1]  ;    sel2[[ i ]] <- mod1b$bic.res[-1, 1]
+  sel3[[ i ]] <- mod2a$pvalue.res[-1, 1]  ;    sel4[[ i ]] <- mod2a$ebic.res[-1, 1]
+  sel5[[ i ]] <- which( mod3$be[-1, 1] != 0 )
+  sel6[[ i ]] <- which( mod4$be[-1, 1] != 0 )
+}
+
+nam <- c("aR (p-value)", "aR (BIC)", "DR (p-value)", "DR (eBIC)", "KLDR", "ALR" )
+perf <- cbind(perf1, perf2, perf3, perf4, perf5, perf6)
+colnames(perf) <- nam
+
+cols <- c("#4E79A7", "#F28E2B", "#59A14F", "#E15759", "#B07AA1", "#76B7B2")
+
+png("perf1.png", width = 6000, height = 4000, res = 600)   ## uncomment to save
+par(mar = c(5, 5.5, 2, 1), las = 1)
+boxplot(perf, col = adjustcolor(cols, alpha.f = 0.45), border = cols,
+        lwd = 1.5, outline = TRUE, pch = 19, cex = 0.7,
+        ylab = "", xlab = "", cex.axis = 1.1,
+        frame = FALSE, boxwex = 0.6, staplewex = 0.4, yaxt = "n")
+axis(2, lwd = 0, lwd.ticks = 0, cex.axis = 1.1, line = -0.5)
+title(ylab = "KLD", line = 3.5, cex.lab = 1.2)
+grid(nx = NA, ny = NULL, col = "grey85", lty = 1)
+boxplot(perf, col = adjustcolor(cols, alpha.f = 0.45), border = cols,
+        lwd = 1.5, pch = 19, cex = 0.7, add = TRUE, axes = FALSE,
+        boxwex = 0.6, staplewex = 0.4)
+points(1:6, colMeans(perf, na.rm = TRUE), pch = 23, bg = "white", cex = 1.2)
+dev.off()
+
+m <- colmeans(perf)
+m/min(m)
+
+
+p <- table( unlist(sel4) ) / 20
+names(p) <- nama[ as.numeric( names(p) ) ]
+p
+
+
+
+R <- 20
+a <- seq(-1, 1, by = 0.1)
+perf <- matrix(nrow = 20, ncol = length(a))
+for ( i in 1:R ) {
+  folds <- Compositional::makefolds(1:dim(y)[1], 10, stratified = FALSE)
+  perf[i, ] <- cv.areg.gomp(y, x, a, folds = folds )$perf[2, ]
+}
+
+
+
+#### Household expenditure
+z <- read.csv("household.csv")
+y <- as.matrix( z[, 2:15] )
+y <- y / rowsums(y)
+x <- as.matrix( z[, -c(2:15)] )
+
+ina <- rep(1, 41544)
+ina[ which( rowsums(y == 0)>0 ) ] <- 0
+
+  folds <- Compositional::makefolds(ina, 10, stratified = TRUE)
+  mod1 <- cv.areg.gomp(y, x, a = seq(0.1, 1, by = 0.1), folds = folds )
+  mod1a <- areg.gomp(y, x, a = mod1$opt[1, 2])
+  mod1b <- areg.gomp(y, x, a = mod1$opt[2, 2])
+  asel[i] <- mod1$opt[1, 2]   ;   bsel[i] <- mod1$opt[2, 2]
+  mod2 <- CompositionalLASSO::cv.lasso.klcompreg(y, x, folds = folds)
+  perf1 <- mod1$opt[1, 1]  ;  perf2 <- mod1$opt[2, 1]  ;  perf3[i] <- mod2$opt[2]
+  sel1 <- mod1a$pvalue.res[-1, 1]  ;    sel2 <- mod1b$bic.res[-1, 1]
+  sel3 <- which( mod3$be[-1, 1] != 0 )
+
+
+nam <- c("aR", "KLDR")
+perf <- cbind(perf1, perf2)
+colnames(perf) <- nam
+
+cols <- c("#4E79A7", "#F28E2B", "#59A14F", "#E15759", "#B07AA1")
+
+png("perf2.png", width = 6000, height = 4000, res = 600)   ## uncomment to save
+par(mar = c(5, 5.5, 2, 1), las = 1)
+boxplot(perf, col = adjustcolor(cols, alpha.f = 0.45), border = cols,
+        lwd = 1.5, outline = TRUE, pch = 19, cex = 0.7,
+        ylab = "", xlab = "", cex.axis = 1.1,
+        frame = FALSE, boxwex = 0.6, staplewex = 0.4, yaxt = "n")
+axis(2, lwd = 0, lwd.ticks = 0, cex.axis = 1.1, line = -0.5)
+title(ylab = "KLD", line = 3.5, cex.lab = 1.2)
+grid(nx = NA, ny = NULL, col = "grey85", lty = 1)
+boxplot(perf, col = adjustcolor(cols, alpha.f = 0.45), border = cols,
+        lwd = 1.5, pch = 19, cex = 0.7, add = TRUE, axes = FALSE,
+        boxwex = 0.6, staplewex = 0.4)
+points(1:2, colMeans(perf, na.rm = TRUE), pch = 23, bg = "white", cex = 1.2)
+dev.off()
+
+m <- colmeans(perf)
+m/min(m)
+
+
+
+
+#### Household expenditure
+z <- read.csv("household.csv")
+y <- as.matrix( z[, 2:15] )
+y <- y / rowsums(y)
+x <- as.matrix( z[, -c(2:15)] )
+
+y <- as.data.frame(y)
+expcols <- grep("Expenditure|Tax", names(y), value = TRUE)   # adjust the pattern if needed
+food     <- c("Staple.Food.Expenditure", "Meat.Expenditure", "Seafood.Expenditure")
+housing  <- c("Utilities.Expenditure", "Housing.Tax")
+transcom <- c("Transportation.Expenditure", "Communication.Expenditure")
+other    <- setdiff(expcols, c(food, housing, transcom))
+other                                                        # check: should list the 5 + the 3 missing
+
+Y <- cbind(
+  food     = rowSums(y[, food]),
+  housing  = rowSums(y[, housing]),
+  transcom = rowSums(y[, transcom]),
+  other    = rowSums(y[, other])
+)
+ind <- which(Y==0, arr.ind = TRUE)[, 1]
+Y <- Y[-ind, ]  ;  x <- x[-ind, ]
+Y <- Y / rowsums(Y)
+
+mod2 <- cv.diri.gomp(Y, x, ncores = 10)
+
+
+
+
+
+
+

@@ -3,7 +3,7 @@ cv.diri.gomp <- function(y, x, sig = 0.05, nfolds = 10, folds = NULL, ncores = 1
   x <- as.matrix(x)
   y <- as.matrix(y)
   force(sig)
-  n <- dim(y)[1]   ;   d <- dim(y)[2]
+  n <- dim(y)[1]   ;   D <- dim(y)[2]
   if ( is.null(folds) )  folds <- Compositional::makefolds(1:n, nfolds = nfolds, stratified = FALSE)
   nfolds <- length(folds)
   apa <- proc.time()
@@ -17,7 +17,7 @@ cv.diri.gomp <- function(y, x, sig = 0.05, nfolds = 10, folds = NULL, ncores = 1
   predfun <- function(res, be, xtest, ytrain, ntest) {
     if ( length(res) == 0 ) {
       est <- Compositional::frechet(ytrain, 1)
-      est <- matrix(est, nrow = ntest, ncol = d, byrow = TRUE)
+      est <- matrix(est, nrow = ntest, ncol = D, byrow = TRUE)
     } else {
       est <- cbind(1, exp( cbind(1, xtest[, res, drop = FALSE]) %*% be ) )
       est <- est / Rfast::rowsums(est)
@@ -46,7 +46,7 @@ cv.diri.gomp <- function(y, x, sig = 0.05, nfolds = 10, folds = NULL, ncores = 1
   } else {
     cl <- parallel::makePSOCKcluster(ncores)
     on.exit( parallel::stopCluster(cl), add = TRUE )
-    parallel::clusterExport(cl, varlist = c("x", "y", "sig", "folds", "d", "kldfun", "predfun"),
+    parallel::clusterExport(cl, varlist = c("x", "y", "sig", "folds", "D", "kldfun", "predfun"),
                             envir = environment())
     kula <- parallel::parLapply(cl, 1:nfolds, runfold)
   }
