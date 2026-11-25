@@ -35,7 +35,7 @@ diri.gomp <- function(y, x, sig = 0.05, model = FALSE) {
 
   fit <- function(cols) {
     xs <- x[, cols, drop = FALSE]
-    m <- tryCatch( diri.reg.irls(y, xs, xnew = xs), error = function(e) NULL )
+    m <- tryCatch( CompositionalOMP::diri.reg.irls(y, xs, xnew = xs), error = function(e) NULL )
     if ( is.null(m) || !is.finite(m$loglik) )  NULL  else  m
   }
 
@@ -102,13 +102,13 @@ diri.gomp <- function(y, x, sig = 0.05, model = FALSE) {
   mod <- mod.ebic <- NULL
   sela.ebic <- ebic.res[-1, 1]
   if ( model  &  len > 0 )  {
-    mod <- diri.reg.irls(y, x[, sela, drop = FALSE])
+    mod <- CompositionalOMP::diri.reg.irls(y, x[, sela, drop = FALSE])
     mod$be[-1, ] <- mod$be[-1, , drop = FALSE] / sx[sela]
     mod$be[1, ] <- mod$be[1, ] - Rfast::colsums( mx[sela] * mod$be[-1, , drop = FALSE] )
     if ( length(sela.ebic) == len ) {
       mod.ebic <- mod
     } else if ( length(sela.ebic) > 0 ) {
-      mod.ebic <- diri.reg.irls(y, x[, sela.ebic, drop = FALSE])
+      mod.ebic <- CompositionalOMP::diri.reg.irls(y, x[, sela.ebic, drop = FALSE])
       mod.ebic$be[-1, ] <- mod.ebic$be[-1, , drop = FALSE] / sx[sela.ebic]
       mod.ebic$be[1, ] <- mod.ebic$be[1, ] - Rfast::colsums( mx[sela.ebic] * mod.ebic$be[-1, , drop = FALSE] )
     }
